@@ -1,85 +1,92 @@
--- Import character classes
-local characters = require("src/characters")
+local characterData = require("src/characters")
 
--- Function to display character stats
-local function displayCharacterStats(className, stats)
-    print("\nClass: " .. className)
-    print("  Strength: " .. stats.Strength)
-    print("  Vitality: " .. stats.Vitality)
-    print("  Agility: " .. stats.Agility)
-    print("  Intelligence: " .. stats.Intelligence)
-    print("  Wisdom: " .. stats.Wisdom)
-    print("  Dexterity: " .. stats.Dexterity)
+-- Helper function to get random element from a table
+local function getRandomElement(tbl)
+    local keys = {}
+    for key in pairs(tbl) do
+        table.insert(keys, key)
+    end
+    return keys[math.random(#keys)]
 end
 
--- Function to calculate recruitment cost
-local baseCosts = {
-    Vanguard = 50,
-    Spearsman = 40,
-    Swordsman = 35,
-    Marksman = 30,
-    Mage = 25,
-    Cleric = 30,
-    Wildling = 60,
-}
-
-local rarityMultipliers = {
-    Common = 0.2,
-    Uncommon = 0.5,
-    Epic = 0.8,
-    Elite = 1.0,
-    Unique = 2.0,
-    Legendary = 3.0,
-}
-
-local function calculateCost(class, stats, rarity)
-    local baseCost = baseCosts[class]
-    local vitalityWeight = stats.Vitality * 0.5
-    local mainStatWeight = stats.MainStat * 0.3
-    local multiplier = rarityMultipliers[rarity]
-
-    return math.floor((baseCost + vitalityWeight + mainStatWeight) * multiplier)
+-- Function to generate random units
+local function generateRandomUnits(count)
+    local units = {}
+    for _ = 1, count do
+        local className = getRandomElement(characterData.baseStats)
+        local rarity = characterData.selectRarity()
+        local stats, cost = characterData.calculateStatsAndCost(characterData.baseStats[className], rarity)
+        table.insert(units, {
+            class = className,
+            rarity = rarity,
+            stats = stats,
+            cost = cost,
+        })
+    end
+    return units
 end
 
--- Function to recruit a character
+-- Function to display a unit
+local function displayUnit(unit, index)
+    print("\nUnit " .. index .. ": " .. unit.rarity .. " " .. unit.class .. " (Cost: " .. unit.cost .. " gold)")
+    for stat, value in pairs(unit.stats) do
+        print("  " .. stat .. ": " .. value)
+    end
+end
+
+-- Recruitment system
 local function recruitCharacter()
-    print("\nChoose a character class to recruit:")
-    for className, _ in pairs(characters) do
-        if className ~= "Wildling" then
-            print("- " .. className)
-        end
+    local gold = 500 -- Starting gold
+    print("\nGold available: " .. gold)
+    print("Generating 7 random units...")
+
+    local units = generateRandomUnits(7)
+    for i, unit in ipairs(units) do
+        displayUnit(unit, i)
     end
 
-    local selectedClass = io.read()
-    if characters[selectedClass] and selectedClass ~= "Wildling" then
-        local recruitedCharacter = characters[selectedClass]
-        print("\nYou have recruited a " .. selectedClass .. "!")
-        displayCharacterStats(selectedClass, recruitedCharacter)
-        return recruitedCharacter
+    print("\nChoose a unit to recruit (1-7):")
+    local choice = tonumber(io.read())
+
+    if choice and units[choice] then
+        local selectedUnit = units[choice]
+        if selectedUnit.cost <= gold then
+            gold = gold - selectedUnit.cost
+            print("\nYou recruited a " .. selectedUnit.rarity .. " " .. selectedUnit.class .. "!")
+            displayUnit(selectedUnit, choice)
+            print("\nRemaining gold: " .. gold)
+            return selectedUnit
+        else
+            print("\nNot enough gold! Choose again.")
+            return recruitCharacter()
+        end
     else
-        print("\nInvalid selection. Please try again.")
-        return recruitCharacter() -- Retry recruitment
+        print("\nInvalid choice. Try again.")
+        return recruitCharacter()
     end
 end
 
 -- Introduction to the game
 local function gameIntroduction()
-    print([[Welcome to **The Crown's Blade**!
+    print([[
+Welcome to **The Crown's Blade**!
 ---------------------------------
 A kingdom in peril calls for brave warriors to rise and reclaim its glory.
 As the leader of this campaign, it is your duty to assemble a mighty army.
 For battles inside the kingdom, you may take a team of 5 Knights.
 This limit is lifted when fighting the kingdom's invaders.
 
+
 Each recruit brings their unique skills and strengths.
 Choose wisely, for the fate of the realm rests on your shoulders!
+
 ]])
 end
 
 -- Main execution
 gameIntroduction()
 
-print("To begin, you must recruit your first character.")
+print("To begin, recruit your first character.")
 local firstCharacter = recruitCharacter()
 
 print("\nYour journey begins now!")
