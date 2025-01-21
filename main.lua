@@ -114,7 +114,7 @@ end
 
 -- Modified recruitment system with default gold value
 local function recruitCharacter(gold)
-    gold = gold or 500  -- Ensure gold has a default value
+    gold = gold or 1000  -- Ensure gold has a default value
     print("\nGold available: " .. gold)
     print("Generating 7 random units...")
     local units = generateRandomUnits(7)
