@@ -13,9 +13,9 @@ local rarityChances = {
     { rarity = "Legendary", chance = 0.1 },
     { rarity = "Unique", chance = 2.0 },
     { rarity = "Elite", chance = 10.0 },
-    { rarity = "Epic", chance = 20.0 },
+    { rarity = "Epic", chance = 15.0 },
     { rarity = "Uncommon", chance = 30.0 },
-    { rarity = "Common", chance = 37.9 },
+    { rarity = "Common", chance = 42.9 },
 }
 
 -- Base stats for level 10 Elite units
@@ -68,7 +68,6 @@ local baseStats = {
         Wisdom = 90,
         Dexterity = 50
     },
-
     Rogue = {
         Strength = 90,
         Vitality = 90,
@@ -79,11 +78,23 @@ local baseStats = {
     }
 }
 
+-- Primary stat mapping for each class
+local primaryStats = {
+    Vanguard = "Vitality",
+    Spearsman = "Agility",
+    Swordsman = "Dexterity",
+    Marksman = "Agility",
+    Mage = "Intelligence",
+    Cleric = "Wisdom",
+    Rogue = "Dexterity"
+}
+
 -- Function to calculate stats and cost
 local function calculateStatsAndCost(baseStats, rarity)
     local multiplier = rarityMultipliers[rarity]
     local luck = math.random(2, 20)
-    
+
+    -- Calculate scaled stats
     local scaledStats = {
         Strength = math.floor(baseStats.Strength * multiplier.stat),
         Vitality = math.floor(baseStats.Vitality * multiplier.stat),
@@ -93,15 +104,17 @@ local function calculateStatsAndCost(baseStats, rarity)
         Dexterity = math.floor(baseStats.Dexterity * multiplier.stat),
         Luck = luck
     }
-    
+
+    -- Determine the primary stat for the class
+    local primaryStat = primaryStats[baseStats.class] or "Strength" -- Default to Strength if not found
+    local primaryStatValue = scaledStats[primaryStat] or 0
 
     -- Add base recruitment cost of 50 gold to the calculated cost
-    local calculatedCost = math.floor((scaledStats.Strength + luck * 2) * multiplier.cost)
-    local totalCost = calculatedCost + 50
-    
-    return scaledStats, totalCost
+    local calculatedCost = math.floor(((5 * primaryStatValue)/6) + 100 * multiplier.cost)
 
+    return scaledStats, calculatedCost
 end
+
 
 -- Function to select a rarity using weighted random
 local function selectRarity()
