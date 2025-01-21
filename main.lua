@@ -195,6 +195,8 @@ local function mainMenu(gold)
     gold = gold or 1000  -- Ensure gold has a default value
     while true do
         print("\nMain Menu")
+        print("\nYour journey begins now!")
+        print("Lead your army to victory and restore the kingdom's honor.")
         print("Current Gold: " .. gold)
         print("1. Recruit New Unit")
         print("2. Manage Army")
@@ -236,6 +238,3 @@ local startingGold = 1000
 print("To begin, recruit your first character.")
 local gold, firstCharacter = recruitCharacter(startingGold)
 mainMenu(gold)
-
-print("\nYour journey begins now!")
-print("Lead your army to victory and restore the kingdom's honor.")
