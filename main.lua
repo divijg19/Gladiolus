@@ -83,7 +83,7 @@ end
 
 -- Recruitment system
 local function recruitCharacter()
-    local gold = 500 -- Starting gold
+    local gold = 1000 -- Starting gold
     print("\nGold available: " .. gold)
     print("Generating 7 random units...")
     local units = generateRandomUnits(7)
