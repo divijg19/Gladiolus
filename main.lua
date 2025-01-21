@@ -1,5 +1,5 @@
 local characterData = require("src/characters")
-local roster = require("src/roster")
+local army = require("src/army")
 local colors = require("src/colors")
 
 -- Stats display order (without Luck)
@@ -73,7 +73,7 @@ end
 local function manageArmy()
     while true do
         print("\nArmy Management")
-        print("1. View Roster")
+        print("1. View Army")
         print("2. View Squad")
         print("3. Add Unit to Squad")
         print("4. Remove Unit from Squad")
@@ -83,26 +83,68 @@ local function manageArmy()
         local choice = tonumber(io.read())
         
         if choice == 1 then
-            roster.displayRoster()
+            army.displayArmy()
         elseif choice == 2 then
-            roster.displaySquad()
+            army.displaySquad()
         elseif choice == 3 then
-            roster.displayRoster()
+            army.displayArmy()
             print("\nSelect unit to add to squad (enter number):")
             local index = tonumber(io.read())
-            local success, message = roster.addToSquad(index)
-            print("\n" .. message)
+            
+            -- Check if the selected index is valid
+            if index < 1 or index > #army.active then
+                print("\nInvalid unit index. Please try again.")
+                break -- or continue to allow retrying
+            end
+        
+            local unitToAdd = army.active[index]
+            
+            -- Check if the unit is already in the squad
+            local isInSquad = false
+            for _, squadUnit in ipairs(army.squad) do
+                if squadUnit == unitToAdd then
+                    isInSquad = true
+                    break
+                end
+            end
+        
+            if isInSquad then
+                print("\nThe unit " .. colors.formatUnitName(unitToAdd.rarity, unitToAdd.class) .. " is already in the squad.")
+            else
+                local success, message = army.addToSquad(index)
+                print("\n" .. message)
+            end
         elseif choice == 4 then
-            roster.displaySquad()
+            army.displaySquad()
             print("\nSelect unit to remove from squad (enter number):")
             local index = tonumber(io.read())
-            local success, message = roster.removeFromSquad(index)
+            local success, message = army.removeFromSquad(index)
             print("\n" .. message)
         elseif choice == 5 then
-            roster.displayRoster()
+            army.displayArmy()
             print("\nSelect unit to dismiss (enter number):")
             local index = tonumber(io.read())
-            local success, message = roster.removeUnit(index)
+        
+            -- Check if the selected index is valid
+            if index < 1 or index > #army.active then
+                print("\nInvalid unit index. Please try again.")
+                break -- or continue to allow retrying
+            end
+        
+            local unitToDismiss = army.active[index]
+        
+            -- Check if the unit is in the squad and remove it if necessary
+            for squadIndex, squadUnit in ipairs(army.squad) do
+                if squadUnit == unitToDismiss then
+                    -- Remove from squad first
+                    local success, message = army.removeFromSquad(squadIndex)
+                    print("\n" .. message) -- Output success or error message
+                    break -- Exit loop after removing from squad
+                end
+            end
+        
+            -- Now remove from army (roster)
+            local success, message = army.removeUnit(index)
             print("\n" .. message)
         elseif choice == 6 then
             break
@@ -127,7 +169,7 @@ local function recruitCharacter(gold)
     if choice and units[choice] then
         local selectedUnit = units[choice]
         if selectedUnit.cost <= gold then
-            local success, message = roster.addUnit(selectedUnit)
+            local success, message = army.addUnit(selectedUnit)
             if not success then
                 print("\n" .. message)
                 return gold, nil
