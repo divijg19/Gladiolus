@@ -1,5 +1,28 @@
 local characterData = require("src/characters")
 
+-- Rarity colors
+local rarityColors = {
+    Common = "\27[90m", -- Grey
+    Uncommon = "\27[92m", -- Green
+    Epic = "\27[94m", -- Blue
+    Elite = "\27[95m", -- Purple
+    Unique = "\27[93m", -- Gold
+    Legendary = "\27[91m", -- Red
+}
+
+-- Stats display order
+local statsOrder = {
+    "Strength",
+    "Vitality",
+    "Agility",
+    "Intelligence",
+    "Wisdom",
+    "Dexterity",
+    "Luck"
+}
+
+local resetColor = "\27[0m"
+
 -- Helper function to get random element from a table
 local function getRandomElement(tbl)
     local keys = {}
@@ -26,11 +49,14 @@ local function generateRandomUnits(count)
     return units
 end
 
--- Function to display a unit
+-- Function to display a unit with rarity color and ordered stats
 local function displayUnit(unit, index)
-    print("\nUnit " .. index .. ": " .. unit.rarity .. " " .. unit.class .. " (Cost: " .. unit.cost .. " gold)")
-    for stat, value in pairs(unit.stats) do
-        print("  " .. stat .. ": " .. value)
+    local color = rarityColors[unit.rarity] or resetColor
+    print(color .. "\nUnit " .. index .. ": " .. unit.rarity .. " " .. unit.class .. resetColor .. " (Cost: " .. unit.cost .. " gold)")
+    for _, statName in ipairs(statsOrder) do
+        if unit.stats[statName] then
+            print("  " .. statName .. ": " .. unit.stats[statName])
+        end
     end
 end
 
@@ -39,15 +65,13 @@ local function recruitCharacter()
     local gold = 500 -- Starting gold
     print("\nGold available: " .. gold)
     print("Generating 7 random units...")
-
     local units = generateRandomUnits(7)
     for i, unit in ipairs(units) do
         displayUnit(unit, i)
     end
-
+    
     print("\nChoose a unit to recruit (1-7):")
     local choice = tonumber(io.read())
-
     if choice and units[choice] then
         local selectedUnit = units[choice]
         if selectedUnit.cost <= gold then
@@ -75,19 +99,14 @@ A kingdom in peril calls for brave warriors to rise and reclaim its glory.
 As the leader of this campaign, it is your duty to assemble a mighty army.
 For battles inside the kingdom, you may take a team of 5 Knights.
 This limit is lifted when fighting the kingdom's invaders.
-
-
 Each recruit brings their unique skills and strengths.
 Choose wisely, for the fate of the realm rests on your shoulders!
-
 ]])
 end
 
 -- Main execution
 gameIntroduction()
-
 print("To begin, recruit your first character.")
 local firstCharacter = recruitCharacter()
-
 print("\nYour journey begins now!")
 print("Lead your army to victory and restore the kingdom's honor.")

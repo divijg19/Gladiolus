@@ -29,18 +29,25 @@ local baseStats = {
     Wildling = { Strength = 90, Vitality = 90, Agility = 70, Intelligence = 30, Wisdom = 30, Dexterity = 90 },
 }
 
--- Function to calculate stats and cost based on rarity
+
+-- Function to calculate stats, cost, and hidden Luck
 local function calculateStatsAndCost(baseStats, rarity)
     local multiplier = rarityMultipliers[rarity]
     local scaledStats = {}
+    local luck = math.random(2, 20) -- Hidden Luck stat
+
     local cost = 0
 
     for stat, value in pairs(baseStats) do
         scaledStats[stat] = math.floor(value * multiplier.stat)
     end
 
-    -- Recruitment cost is based on Vitality as a rough gauge of strength
-    cost = math.floor(baseStats.Vitality * multiplier.cost)
+
+    -- Recruitment cost: Main stat, Luck, and multiplier
+    local primaryStat = scaledStats.Strength or 0 -- Defaulting to Strength if primary stat is unclear
+    cost = math.floor((primaryStat + luck * 2) * multiplier.cost)
+
+    scaledStats.Luck = luck -- Include Luck in the unit's stats
 
     return scaledStats, cost
 end
