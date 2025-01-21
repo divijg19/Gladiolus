@@ -1,33 +1,33 @@
--- roster.lua
+-- army.lua
 local colors = require("src/colors")
 
-local roster = {
+local army = {
     active = {},
     squad = {},
     maxSquadSize = 5,
-    maxRosterSize = 20
+    maxArmySize = 20
 }
 
--- Function to add a unit to the roster
-function roster.addUnit(unit)
-    if #roster.active >= roster.maxRosterSize then
-        return false, "Roster is full! Cannot add more units."
+-- Function to add a unit to the army
+function army.addUnit(unit)
+    if #army.active >= army.maxArmySize then
+        return false, "Army is full! Cannot add more units."
     end
-    table.insert(roster.active, unit)
-    return true, "Unit added to roster."
+    table.insert(army.active, unit)
+    return true, "Unit added to army."
 end
 
--- Function to remove a unit from the roster with confirmation
-function roster.removeUnit(index)
-    if index < 1 or index > #roster.active then
+-- Function to remove a unit from the army with confirmation
+function army.removeUnit(index)
+    if index < 1 or index > #army.active then
         return false, "Invalid unit index."
     end
     
-    local unit = roster.active[index]
+    local unit = army.active[index]
     local inSquad = false
     
     -- Check if the unit is in the squad
-    for _, squadUnit in ipairs(roster.squad) do
+    for _, squadUnit in ipairs(army.squad) do
         if squadUnit == unit then
             inSquad = true
             break
@@ -37,8 +37,7 @@ function roster.removeUnit(index)
     -- Warning message if the unit is in the squad
     if inSquad then
         print("Warning: The unit " .. colors.formatUnitName(unit.rarity, unit.class) .. " is currently in the squad.")
-        print("Removing it from the squad before dismissal.")
-        roster.removeFromSquad(index) -- Optionally remove from squad before dismissal.
+        print("Please note that there's an army management option to remove from the squad instead.")
     end
 
     -- Confirmation prompt before removal
@@ -46,40 +45,40 @@ function roster.removeUnit(index)
     local confirmation = io.read()
     
     if confirmation:lower() == "yes" then
-        table.remove(roster.active, index)
-        return true, "Unit dismissed from roster."
+        table.remove(army.active, index)
+        return true, "Unit dismissed from army."
     else
         return false, "Dismissal canceled."
     end
 end
 
 -- Function to add a unit to the squad
-function roster.addToSquad(index)
-    if #roster.squad >= roster.maxSquadSize then
+function army.addToSquad(index)
+    if #army.squad >= army.maxSquadSize then
         return false, "Squad is full! Cannot add more units."
     end
-    local unit = roster.active[index]
+    local unit = army.active[index]
     if not unit then
         return false, "Invalid unit index."
     end
-    table.insert(roster.squad, unit)
+    table.insert(army.squad, unit)
     return true, "Unit added to squad."
 end
 
 -- Function to remove a unit from the squad
-function roster.removeFromSquad(index)
-    if index < 1 or index > #roster.squad then
+function army.removeFromSquad(index)
+    if index < 1 or index > #army.squad then
         return false, "Invalid squad index."
     end
-    table.remove(roster.squad, index)
+    table.remove(army.squad, index)
     return true, "Unit removed from squad."
 end
 
--- Display roster with colors
-function roster.displayRoster()
-    print("\nArmy Roster (" .. #roster.active .. "/" .. roster.maxRosterSize .. " units):")
+-- Display army with colors
+function army.displayArmy()
+    print("\nArmy (" .. #army.active .. "/" .. army.maxArmySize .. " units):")
     print("----------------------------------------")
-    for i, unit in ipairs(roster.active) do
+    for i, unit in ipairs(army.active) do
         print("\n" .. i .. ". " .. colors.formatUnitName(unit.rarity, unit.class))
         for _, statName in ipairs({"Strength", "Vitality", "Agility", "Intelligence", "Wisdom", "Dexterity", "Luck"}) do
             if unit.stats[statName] then
@@ -90,10 +89,10 @@ function roster.displayRoster()
 end
 
 -- Display squad with colors
-function roster.displaySquad()
-    print("\nBattle Squad (" .. #roster.squad .. "/" .. roster.maxSquadSize .. " units):")
+function army.displaySquad()
+    print("\nBattle Squad (" .. #army.squad .. "/" .. army.maxSquadSize .. " units):")
     print("----------------------------------------")
-    for i, unit in ipairs(roster.squad) do
+    for i, unit in ipairs(army.squad) do
         print("\n" .. i .. ". " .. colors.formatUnitName(unit.rarity, unit.class))
         for _, statName in ipairs({"Strength", "Vitality", "Agility", "Intelligence", "Wisdom", "Dexterity", "Luck"}) do
             if unit.stats[statName] then
@@ -103,4 +102,4 @@ function roster.displaySquad()
     end
 end
 
-return roster
+return army
