@@ -110,7 +110,7 @@ local function calculateStatsAndCost(baseStats, rarity)
     local primaryStatValue = scaledStats[primaryStat] or 0
 
     -- Add base recruitment cost of 50 gold to the calculated cost
-    local calculatedCost = math.floor(((5 * primaryStatValue)/6) + 100 * multiplier.cost)
+    local calculatedCost = math.floor(((5 * primaryStatValue)/6) + (luck*(3/4) + 100 * multiplier.cost)
 
     return scaledStats, calculatedCost
 end
