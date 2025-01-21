@@ -13,9 +13,9 @@ local rarityChances = {
     { rarity = "Legendary", chance = 0.1 },
     { rarity = "Unique", chance = 2.0 },
     { rarity = "Elite", chance = 10.0 },
-    { rarity = "Epic", chance = 15.0 },
+    { rarity = "Epic", chance = 20.0 },
     { rarity = "Uncommon", chance = 30.0 },
-    { rarity = "Common", chance = 42.9 },
+    { rarity = "Common", chance = 37.9 },
 }
 
 -- Base stats for level 10 Elite units
@@ -68,6 +68,7 @@ local baseStats = {
         Wisdom = 90,
         Dexterity = 50
     },
+
     Rogue = {
         Strength = 90,
         Vitality = 90,
@@ -93,11 +94,13 @@ local function calculateStatsAndCost(baseStats, rarity)
         Luck = luck
     }
     
+
     -- Add base recruitment cost of 50 gold to the calculated cost
     local calculatedCost = math.floor((scaledStats.Strength + luck * 2) * multiplier.cost)
     local totalCost = calculatedCost + 50
     
     return scaledStats, totalCost
+
 end
 
 -- Function to select a rarity using weighted random
