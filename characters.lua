@@ -141,6 +141,7 @@ local function calculateStatsAndCost(stats, rarity, class)
     local primaryStat = primaryStats[class] or CONSTANTS.DEFAULT_PRIMARY_STAT
     local primaryStatValue = scaledStats[primaryStat] or 0
 
+
     -- Calculate cost using primary stat value, luck, and rarity multiplier
     local calculatedCost = math.floor(
         (primaryStatValue * CONSTANTS.PRIMARY_STAT_COST_MULTIPLIER) + 
@@ -148,6 +149,7 @@ local function calculateStatsAndCost(stats, rarity, class)
         CONSTANTS.BASE_COST * multiplier.cost
     )
     
+
     return scaledStats, calculatedCost
 end
 
