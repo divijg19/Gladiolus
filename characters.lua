@@ -1,4 +1,3 @@
--- Constants for game balance
 local CONSTANTS = {
     LUCK_MIN = 2,
     LUCK_MIN_MAX = 20,
@@ -8,12 +7,12 @@ local CONSTANTS = {
     DEFAULT_PRIMARY_STAT = "Strength",
     MAX_LEVEL = 11,
     -- XP scaling constants
-    BASE_XP = 100,        -- Base XP needed for level 2
-    GROWTH_FACTOR = 1.5,  -- How quickly XP requirements grow
-    SCALING_POWER = 2     -- Power factor for exponential scaling
+    BASE_XP = 100,
+    GROWTH_FACTOR = 1.5,
+    SCALING_POWER = 2
 }
 
--- Rarity multipliers
+-- Game data tables
 local rarityMultipliers = {
     Common = { stat = 0.2, cost = 0.2 },
     Uncommon = { stat = 0.5, cost = 0.5 },
@@ -23,7 +22,6 @@ local rarityMultipliers = {
     Legendary = { stat = 3.0, cost = 3.0 },
 }
 
--- Rarity chances (maintained exact order and values from original)
 local rarityChances = {
     { rarity = "Legendary", chance = 0.1 },
     { rarity = "Unique", chance = 2.0 },
@@ -33,7 +31,6 @@ local rarityChances = {
     { rarity = "Common", chance = 42.9 },
 }
 
--- Base stats for level 10 Elite units (maintained exactly as in original)
 local baseStats = {
     Vanguard = {
         Strength = 80,
@@ -93,7 +90,6 @@ local baseStats = {
     }
 }
 
--- Primary stat mapping for each class
 local primaryStats = {
     Vanguard = "Vitality",
     Spearsman = "Agility",
@@ -104,40 +100,57 @@ local primaryStats = {
     Rogue = "Dexterity"
 }
 
--- Function to calculate stats and cost (maintaining original formula)
-local function calculateStatsAndCost(baseStats, rarity, class)
-    if not baseStats then
+-- Pre-calculate XP requirements table
+local xpRequirements = {}
+for level = 2, CONSTANTS.MAX_LEVEL do
+    xpRequirements[level] = math.floor(
+        CONSTANTS.BASE_XP * 
+        (CONSTANTS.GROWTH_FACTOR ^ (level - 1)) * 
+        ((level - 1) ^ CONSTANTS.SCALING_POWER)
+    )
+end
+
+-- Helper function to validate character data
+local function validateCharacterData(stats, rarity)
+    if not stats then
         error("Base stats cannot be nil")
     end
-    
-    local multiplier = rarityMultipliers[rarity]
-    if not multiplier then
+    if not rarityMultipliers[rarity] then
         error("Invalid rarity: " .. tostring(rarity))
     end
+end
+
+-- Core game mechanics functions
+local function calculateStatsAndCost(stats, rarity, class)
+    validateCharacterData(stats, rarity)
     
+    local multiplier = rarityMultipliers[rarity]
     local luck = math.random(CONSTANTS.LUCK_MIN, CONSTANTS.LUCK_MIN_MAX)
 
     -- Calculate scaled stats
     local scaledStats = {
-        Strength = math.floor(baseStats.Strength * multiplier.stat),
-        Vitality = math.floor(baseStats.Vitality * multiplier.stat),
-        Agility = math.floor(baseStats.Agility * multiplier.stat),
-        Intelligence = math.floor(baseStats.Intelligence * multiplier.stat),
-        Wisdom = math.floor(baseStats.Wisdom * multiplier.stat),
-        Dexterity = math.floor(baseStats.Dexterity * multiplier.stat),
+        Strength = math.floor(stats.Strength * multiplier.stat),
+        Vitality = math.floor(stats.Vitality * multiplier.stat),
+        Agility = math.floor(stats.Agility * multiplier.stat),
+        Intelligence = math.floor(stats.Intelligence * multiplier.stat),
+        Wisdom = math.floor(stats.Wisdom * multiplier.stat),
+        Dexterity = math.floor(stats.Dexterity * multiplier.stat),
         Luck = luck
     }
 
-    -- Determine the primary stat for the class
     local primaryStat = primaryStats[class] or CONSTANTS.DEFAULT_PRIMARY_STAT
     local primaryStatValue = scaledStats[primaryStat] or 0
 
-    -- Calculate cost using original formula
-    local calculatedCost = math.floor(((5 * primaryStatValue)/6) + (luck*(3/4)) + 100 * multiplier.cost)
+    -- Calculate cost using primary stat value, luck, and rarity multiplier
+    local calculatedCost = math.floor(
+        (primaryStatValue * CONSTANTS.PRIMARY_STAT_COST_MULTIPLIER) + 
+        (luck * CONSTANTS.LUCK_COST_MULTIPLIER) + 
+        CONSTANTS.BASE_COST * multiplier.cost
+    )
+    
     return scaledStats, calculatedCost
 end
 
--- Function to select a rarity (maintained exactly as in original)
 local function selectRarity()
     local totalWeight = 0
     for _, entry in ipairs(rarityChances) do
@@ -157,18 +170,6 @@ local function selectRarity()
     return "Common"
 end
 
--- Calculate XP requirements table with exponential scaling
-local xpRequirements = {}
-for level = 2, CONSTANTS.MAX_LEVEL do
-    -- Formula: BASE_XP * (GROWTH_FACTOR^(level-1)) * ((level-1)^SCALING_POWER)
-    xpRequirements[level] = math.floor(
-        CONSTANTS.BASE_XP * 
-        (CONSTANTS.GROWTH_FACTOR ^ (level - 1)) * 
-        ((level - 1) ^ CONSTANTS.SCALING_POWER)
-    )
-end
-
--- Function to initialize a character (maintained as in original)
 local function initializeCharacter(class, rarity)
     if not baseStats[class] then
         error("Invalid class: " .. tostring(class))
@@ -185,8 +186,12 @@ local function initializeCharacter(class, rarity)
     }
 end
 
--- Function to add XP to a character (maintaining original behavior with additional returns)
+-- Character progression functions
 local function addXP(character, xpGained)
+    if type(xpGained) ~= "number" or xpGained < 0 then
+        error("Invalid XP amount")
+    end
+    
     character.xp = character.xp + xpGained
     local canLevelUp = character.level < CONSTANTS.MAX_LEVEL and 
                        character.xp >= xpRequirements[character.level + 1]
@@ -198,7 +203,6 @@ local function addXP(character, xpGained)
     return canLevelUp
 end
 
--- Function to level up a character (maintaining original behavior)
 local function levelUp(character, gemsAvailable, gemCostPerLevel)
     if character.level >= CONSTANTS.MAX_LEVEL then
         print("Character is already at max level.")
@@ -221,13 +225,21 @@ local function levelUp(character, gemsAvailable, gemCostPerLevel)
     return true
 end
 
--- Return the module with all original exports
+-- Module exports
 return {
+    -- Constants and data tables
     baseStats = baseStats,
     rarityMultipliers = rarityMultipliers,
+    
+    -- Core game mechanics
     calculateStatsAndCost = calculateStatsAndCost,
     selectRarity = selectRarity,
     initializeCharacter = initializeCharacter,
+    
+    -- Character progression
     addXP = addXP,
-    levelUp = levelUp
+    levelUp = levelUp,
+    
+    -- Expose constants for testing and configuration
+    CONSTANTS = CONSTANTS
 }
