@@ -63,19 +63,10 @@ local function generateRandomUnits(count)
     return units
 end
 
-local function displayRecruitmentUnit(unit, index)
-    print("\nUnit " .. index .. ": " .. colors.formatUnitName(unit.rarity, unit.class) .. 
-          " (Cost: " .. unit.cost .. " gold)")
-    for _, statName in ipairs(gameState.recruitmentStatsOrder) do
-        if unit.stats[statName] then
-            print("  " .. statName .. ": " .. unit.stats[statName])
-        end
-    end
-end
-
 local function displayRecruitedUnit(unit, index)
     print("\nUnit " .. index .. ": " .. colors.formatUnitName(unit.rarity, unit.class))
     print("Level: " .. unit.level .. " (XP: " .. unit.xp .. ")")
+    print("Cost: " .. unit.cost .. " gold")
     for _, statName in ipairs(gameState.fullStatsOrder) do
         if unit.stats[statName] then
             print("  " .. statName .. ": " .. unit.stats[statName])
