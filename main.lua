@@ -2,24 +2,24 @@ local characterData = require("src/characters")
 local army = require("src/army")
 local colors = require("src/colors")
 
--- Stats display order (without Luck)
-local recruitmentStatsOrder = {
-    "Strength",
-    "Vitality",
-    "Agility",
-    "Intelligence",
-    "Wisdom",
-    "Dexterity"
+-- Game currencies
+local currencies = {
+    gold = 1000,
+    gems = 100  -- Starting gems amount
 }
 
--- Full stats order (with Luck)
+-- Constants
+local LEVEL_UP_COST = 50  -- Gems cost per level up
+
+-- Stats display orders
+local recruitmentStatsOrder = {
+    "Strength", "Vitality", "Agility",
+    "Intelligence", "Wisdom", "Dexterity"
+}
+
 local fullStatsOrder = {
-    "Strength",
-    "Vitality",
-    "Agility",
-    "Intelligence",
-    "Wisdom",
-    "Dexterity",
+    "Strength", "Vitality", "Agility",
+    "Intelligence", "Wisdom", "Dexterity",
     "Luck"
 }
 
@@ -38,20 +38,18 @@ local function generateRandomUnits(count)
     for _ = 1, count do
         local className = getRandomElement(characterData.baseStats)
         local rarity = characterData.selectRarity()
-        local stats, cost = characterData.calculateStatsAndCost(characterData.baseStats[className], rarity)
-        table.insert(units, {
-            class = className,
-            rarity = rarity,
-            stats = stats,
-            cost = cost,
-        })
+        local stats, cost = characterData.calculateStatsAndCost(characterData.baseStats[className], rarity, className)
+        local unit = characterData.initializeCharacter(className, rarity)
+        unit.cost = cost
+        table.insert(units, unit)
     end
     return units
 end
 
 -- Function to display a unit during recruitment (without Luck)
 local function displayRecruitmentUnit(unit, index)
-    print("\nUnit " .. index .. ": " .. colors.formatUnitName(unit.rarity, unit.class) .. " (Cost: " .. unit.cost .. " gold)")
+    print("\nUnit " .. index .. ": " .. colors.formatUnitName(unit.rarity, unit.class) .. 
+          " (Cost: " .. unit.cost .. " gold)")
     for _, statName in ipairs(recruitmentStatsOrder) do
         if unit.stats[statName] then
             print("  " .. statName .. ": " .. unit.stats[statName])
@@ -59,9 +57,10 @@ local function displayRecruitmentUnit(unit, index)
     end
 end
 
--- Function to display a recruited unit (with Luck)
+-- Enhanced function to display a recruited unit (with Luck and Level)
 local function displayRecruitedUnit(unit, index)
-    print("\nUnit " .. index .. ": " .. colors.formatUnitName(unit.rarity, unit.class) .. " (Cost: " .. unit.cost .. " gold)")
+    print("\nUnit " .. index .. ": " .. colors.formatUnitName(unit.rarity, unit.class))
+    print("Level: " .. unit.level .. " (XP: " .. unit.xp .. ")")
     for _, statName in ipairs(fullStatsOrder) do
         if unit.stats[statName] then
             print("  " .. statName .. ": " .. unit.stats[statName])
@@ -73,12 +72,14 @@ end
 local function manageArmy()
     while true do
         print("\nArmy Management")
+        print("Current Gems: " .. currencies.gems)
         print("1. View Army")
         print("2. View Squad")
         print("3. Add Unit to Squad")
         print("4. Remove Unit from Squad")
         print("5. Dismiss Unit")
-        print("6. Return to Main Menu")
+        print("6. Level Up Unit")
+        print("7. Return to Main Menu")
         
         local choice = tonumber(io.read())
         
@@ -91,28 +92,24 @@ local function manageArmy()
             print("\nSelect unit to add to squad (enter number):")
             local index = tonumber(io.read())
             
-            -- Check if the selected index is valid
-            if index < 1 or index > #army.active then
-                print("\nInvalid unit index. Please try again.")
-                break -- or continue to allow retrying
-            end
-        
-            local unitToAdd = army.active[index]
-            
-            -- Check if the unit is already in the squad
-            local isInSquad = false
-            for _, squadUnit in ipairs(army.squad) do
-                if squadUnit == unitToAdd then
-                    isInSquad = true
-                    break
+            if index and index >= 1 and index <= #army.active then
+                local unitToAdd = army.active[index]
+                local isInSquad = false
+                for _, squadUnit in ipairs(army.squad) do
+                    if squadUnit == unitToAdd then
+                        isInSquad = true
+                        break
+                    end
                 end
-            end
-        
-            if isInSquad then
-                print("\nThe unit " .. colors.formatUnitName(unitToAdd.rarity, unitToAdd.class) .. " is already in the squad.")
+            
+                if isInSquad then
+                    print("\nUnit already in squad.")
+                else
+                    local success, message = army.addToSquad(index)
+                    print("\n" .. message)
+                end
             else
-                local success, message = army.addToSquad(index)
-                print("\n" .. message)
+                print("\nInvalid unit index.")
             end
         elseif choice == 4 then
             army.displaySquad()
@@ -124,29 +121,40 @@ local function manageArmy()
             army.displayArmy()
             print("\nSelect unit to dismiss (enter number):")
             local index = tonumber(io.read())
-        
-            -- Check if the selected index is valid
-            if index < 1 or index > #army.active then
-                print("\nInvalid unit index. Please try again.")
-                break -- or continue to allow retrying
-            end
-        
-            local unitToDismiss = army.active[index]
-        
-            -- Check if the unit is in the squad and remove it if necessary
-            for squadIndex, squadUnit in ipairs(army.squad) do
-                if squadUnit == unitToDismiss then
-                    -- Remove from squad first
-                    local success, message = army.removeFromSquad(squadIndex)
-                    print("\n" .. message) -- Output success or error message
-                    break -- Exit loop after removing from squad
+            
+            if index and index >= 1 and index <= #army.active then
+                local unitToDismiss = army.active[index]
+                -- Remove from squad if present
+                for squadIndex, squadUnit in ipairs(army.squad) do
+                    if squadUnit == unitToDismiss then
+                        army.removeFromSquad(squadIndex)
+                        break
+                    end
                 end
+                local success, message = army.removeUnit(index)
+                print("\n" .. message)
+            else
+                print("\nInvalid unit index.")
             end
-        
-            -- Now remove from army (roster)
-            local success, message = army.removeUnit(index)
-            print("\n" .. message)
         elseif choice == 6 then
+            army.displayArmy()
+            print("\nSelect unit to level up (enter number):")
+            local index = tonumber(io.read())
+            
+            if index and index >= 1 and index <= #army.active then
+                local unit = army.active[index]
+                local success = characterData.levelUp(unit, currencies.gems, LEVEL_UP_COST)
+                
+                if success then
+                    currencies.gems = currencies.gems - LEVEL_UP_COST
+                    print("\nUnit leveled up successfully!")
+                    displayRecruitedUnit(unit, index)
+                    print("Gems remaining: " .. currencies.gems)
+                end
+            else
+                print("\nInvalid unit index.")
+            end
+        elseif choice == 7 then
             break
         else
             print("\nInvalid choice. Try again.")
@@ -154,9 +162,8 @@ local function manageArmy()
     end
 end
 
--- Modified recruitment system with default gold value
+-- Modified recruitment system
 local function recruitCharacter(gold)
-    gold = gold or 1000  -- Ensure gold has a default value
     print("\nGold available: " .. gold)
     print("Generating 7 random units...")
     local units = generateRandomUnits(7)
@@ -191,13 +198,13 @@ local function recruitCharacter(gold)
 end
 
 -- Modified main menu
-local function mainMenu(gold)
-    gold = gold or 1000  -- Ensure gold has a default value
+local function mainMenu()
     while true do
         print("\nMain Menu")
         print("\nYour journey begins now!")
         print("Lead your army to victory and restore the kingdom's honor.")
-        print("Current Gold: " .. gold)
+        print("Current Gold: " .. currencies.gold)
+        print("Current Gems: " .. currencies.gems)
         print("1. Recruit New Unit")
         print("2. Manage Army")
         print("3. Quit Game")
@@ -205,8 +212,8 @@ local function mainMenu(gold)
         local choice = tonumber(io.read())
         
         if choice == 1 then
-            local remainingGold, unit = recruitCharacter(gold)
-            gold = remainingGold or gold  -- Protect against nil
+            local remainingGold, unit = recruitCharacter(currencies.gold)
+            currencies.gold = remainingGold or currencies.gold
         elseif choice == 2 then
             manageArmy()
         elseif choice == 3 then
@@ -229,12 +236,13 @@ For battles inside the kingdom, you may take a team of 5 Knights.
 This limit is lifted when fighting the kingdom's invaders.
 Each recruit brings their unique skills and strengths.
 Choose wisely, for the fate of the realm rests on your shoulders!
+
+You start with 1000 gold for recruiting units and 100 gems for leveling them up.
 ]])
 end
 
 -- Main execution
 gameIntroduction()
-local startingGold = 1000
-print("To begin, recruit your first character.")
-local gold, firstCharacter = recruitCharacter(startingGold)
-mainMenu(gold)
+local firstGold, firstCharacter = recruitCharacter(currencies.gold)
+currencies.gold = firstGold or currencies.gold
+mainMenu()
