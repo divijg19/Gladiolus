@@ -1,3 +1,5 @@
+-- characters.lua
+
 local CONSTANTS = {
     LUCK_MIN = 2,
     LUCK_MIN_MAX = 20,
@@ -141,7 +143,6 @@ local function calculateStatsAndCost(stats, rarity, class)
     local primaryStat = primaryStats[class] or CONSTANTS.DEFAULT_PRIMARY_STAT
     local primaryStatValue = scaledStats[primaryStat] or 0
 
-
     -- Calculate cost using primary stat value, luck, and rarity multiplier
     local calculatedCost = math.floor(
         (primaryStatValue * CONSTANTS.PRIMARY_STAT_COST_MULTIPLIER) + 
@@ -149,7 +150,6 @@ local function calculateStatsAndCost(stats, rarity, class)
         CONSTANTS.BASE_COST * multiplier.cost
     )
     
-
     return scaledStats, calculatedCost
 end
 
@@ -172,13 +172,14 @@ local function selectRarity()
     return "Common"
 end
 
-local function initializeCharacter(class, rarity)
+local function initializeCharacter(class, rarity, name)
     if not baseStats[class] then
         error("Invalid class: " .. tostring(class))
     end
     
     local stats, cost = calculateStatsAndCost(baseStats[class], rarity, class)
     return {
+        name = name or "Unnamed Unit", -- Default to "Unnamed Unit" if no name provided
         class = class,
         rarity = rarity,
         level = 1,
