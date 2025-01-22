@@ -1,6 +1,8 @@
 local characterData = require("src/characters")
 local army = require("src/army")
+local battleSystem = require("src/battleSystem")
 local colors = require("src/colors")
+local enemies = require("src/enemies")
 
 -- Consolidated game state
 local gameState = {
@@ -67,6 +69,7 @@ local function displayRecruitedUnit(unit, index)
     print("\nUnit " .. index .. ": " .. colors.formatUnitName(unit.rarity, unit.class))
     print("Level: " .. unit.level .. " (XP: " .. unit.xp .. ")")
     print("Cost: " .. unit.cost .. " gold")
+
     for _, statName in ipairs(gameState.fullStatsOrder) do
         if unit.stats[statName] then
             print("  " .. statName .. ": " .. unit.stats[statName])
@@ -175,7 +178,7 @@ local function recruitCharacter(gold)
     print("Generating 7 random units...")
     local units = generateRandomUnits(7)
     for i, unit in ipairs(units) do
-        displayRecruitmentUnit(unit, i)
+        displayRecruitedUnit(unit, i)
     end
     
     local choice = getValidNumber("\nChoose a unit to recruit (1-7):")
@@ -187,11 +190,9 @@ local function recruitCharacter(gold)
                 print("\n" .. message)
                 return gold, nil
             end
-            
             local remainingGold = gold - selectedUnit.cost
             print("\nYou recruited a " .. colors.formatUnitName(selectedUnit.rarity, selectedUnit.class) .. "!")
             displayRecruitedUnit(selectedUnit, choice)
-            print("\nGold remaining: " .. remainingGold)
             return remainingGold, selectedUnit
         else
             print("\nNot enough gold! You need " .. (selectedUnit.cost - gold) .. " more gold.")
@@ -205,8 +206,7 @@ end
 
 -- Display functions
 local function displayGameRules()
-    print([[
-Game Rules and Mechanics
+    print([[Game Rules and Mechanics
 -----------------------
 1. Army Management:
    - Maximum army size: 20 units
@@ -226,40 +226,37 @@ end
 local function displayMainMenu()
     print("\n-----------------------------")
     print("Main Menu")
-    print("\nYour journey begins now!")
-    print("Lead your army to victory and restore the kingdom's honor.")
-    print("Current Gold: " .. gameState.currencies.gold)
-    print("Current Gems: " .. gameState.currencies.gems)
-    print("1. Recruit New Unit")
+    print("Gold: " .. gameState.currencies.gold)
+    print("Gems: " .. gameState.currencies.gems)
+    print("1. Recruit a Unit")
     print("2. Manage Army")
-    print("3. View Game Rules")
-    print("4. Quit Game")
-end
+    print("3. Initiate Battle")
+    print("4. View Game Rules")
+    print("5. Exit Game")
 
--- Main menu loop
-local function mainMenu()
-    while true do
-        displayMainMenu()
-        local choice = getValidNumber("\nEnter your choice:")
-        
-        if choice == 1 then
-            local remainingGold, unit = recruitCharacter(gameState.currencies.gold)
-            gameState.currencies.gold = remainingGold or gameState.currencies.gold
-        elseif choice == 2 then
-            if #army.active == 0 then
-                print("\nYou need to recruit at least one unit first!")
-            else
-                manageArmy()
-            end
-        elseif choice == 3 then
-            displayGameRules()
-        elseif choice == 4 then
-            print("\nThanks for playing!")
-            break
+    local choice = getValidNumber("\nEnter your choice:")
+
+    if choice == 1 then
+        gameState.currencies.gold = recruitCharacter(gameState.currencies.gold)
+    elseif choice == 2 then
+        manageArmy()
+    elseif choice == 3 then
+        if #army.squad == 0 then
+            print("\nYour squad is empty. You need units in your squad to initiate a battle.")
         else
-            print("\nInvalid choice. Try again.")
+            local enemySquad = battleSystem.generateEnemySquad()
+			battleSystem.battleFlow(army.squad, enemySquad)
         end
+    elseif choice == 4 then
+        displayGameRules()
+    elseif choice == 5 then
+        print("\nThank you for playing! Goodbye.")
+        os.exit()
+    else
+        print("\nInvalid choice. Please try again.")
     end
+
+    displayMainMenu()
 end
 
 -- Game introduction
@@ -280,12 +277,11 @@ Game Features:
 - Level up your units to increase their power
 
 You start with:
-- 1000 gold for recruiting units
-- 100 gems for leveling them up
-
-Type 3 at the main menu to view complete game rules.
+- 1000 gold for recruiting
+- 100 gems for leveling units
 ]])
-    print("\nWould you like to recruit your first unit? (yes/no)")
+
+ print("\nWould you like to recruit your first unit? (yes/no)")
     local answer = io.read():lower()
     if answer == "yes" then
         local remainingGold, unit = recruitCharacter(gameState.currencies.gold)
@@ -299,4 +295,4 @@ end
 -- Main execution
 math.randomseed(os.time())
 gameIntroduction()
-mainMenu()
+displayMainMenu()
