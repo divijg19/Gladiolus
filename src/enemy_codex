@@ -1,0 +1,124 @@
+-- enemy_codex.lua
+local enemies = require("src/enemies")  
+local enemyCodex = {}
+
+-- Initialize the enemy codex with all enemies from enemies.lua
+enemyCodex.enemies = {}
+
+-- Function to populate the codex with enemies
+local function populateCodex()
+    if not next(enemies.templates) then
+        error("No enemy templates found in enemies module")
+    end
+    
+    for category, enemyList in pairs(enemies.templates) do
+        for _, enemy in ipairs(enemyList) do
+            if enemy.name and enemy.class and enemy.rarity then
+                table.insert(enemyCodex.enemies, {
+                    name = enemy.name,
+                    class = enemy.class,
+                    rarity = enemy.rarity,
+                    description = "A " .. enemy.class .. " of rarity " .. enemy.rarity .. ".",
+                    level = enemy.level,
+                    stats = enemy.stats,
+                    encountered = false,
+                    milestone = false
+                })
+            else
+                print("Warning: Incomplete enemy data skipped - " .. tostring(enemy.name))
+            end
+        end
+    end
+end
+
+-- Call the function to populate the codex
+populateCodex()
+
+-- Display the enemy codex
+function enemyCodex.display()
+    print("\nEnemy Codex")
+    print("-----------")
+    for _, enemy in ipairs(enemyCodex.enemies) do
+        local status = enemy.encountered and "Encountered" or "Not Encountered"
+        local milestoneStatus = enemy.milestone and "Milestone Achieved!" or "Milestone Not Achieved"
+        local description = enemy.encountered and enemy.description or "Details Spoilered"
+        
+        print(enemy.name .. ": " .. status .. " | " .. milestoneStatus)
+        print("Description: " .. description)
+        print("-----------")
+    end
+end
+
+-- Get encountered enemies
+function enemyCodex.getEncounteredEnemies()
+    return vim.tbl_filter(function(enemy) 
+        return enemy.encountered 
+    end, enemyCodex.enemies)
+end
+
+-- Get milestone enemies
+function enemyCodex.getMilestoneEnemies()
+    return vim.tbl_filter(function(enemy) 
+        return enemy.milestone 
+    end, enemyCodex.enemies)
+end
+
+-- Get enemy by name
+function enemyCodex.getEnemyByName(name)
+    for _, enemy in ipairs(enemyCodex.enemies) do
+        if enemy.name == name then
+            return enemy
+        end
+    end
+    return nil
+end
+
+-- Update encountered enemy status
+function enemyCodex.updateEncountered(enemyName)
+    local enemy = enemyCodex.getEnemyByName(enemyName)
+    
+    if not enemy then
+        print("Enemy not found in the codex.")
+        return false
+    end
+    
+    enemy.encountered = true
+    
+    -- More sophisticated milestone logic
+    local encounterCount = #enemyCodex.getEncounteredEnemies()
+    local totalEnemies = #enemyCodex.enemies
+    
+    if encounterCount / totalEnemies >= 0.5 then
+        enemy.milestone = true
+        print("Milestone achieved: Half of enemies encountered!")
+    end
+    
+    print(enemyName .. " has been encountered!")
+    return true
+end
+
+-- Serialize codex for saving
+function enemyCodex.serialize()
+    local serializedCodex = {}
+    for _, enemy in ipairs(enemyCodex.enemies) do
+        table.insert(serializedCodex, {
+            name = enemy.name,
+            encountered = enemy.encountered,
+            milestone = enemy.milestone
+        })
+    end
+    return serializedCodex
+end
+
+-- Deserialize codex when loading
+function enemyCodex.deserialize(serializedData)
+    for _, savedEnemy in ipairs(serializedData) do
+        local enemy = enemyCodex.getEnemyByName(savedEnemy.name)
+        if enemy then
+            enemy.encountered = savedEnemy.encountered
+            enemy.milestone = savedEnemy.milestone
+        end
+    end
+end
+
+return enemyCodex
