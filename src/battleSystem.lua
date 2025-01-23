@@ -1,8 +1,6 @@
--- battleSystem.lua
-
 local army = require("src/army")
 local colors = require("src/colors")
-local enemies = require("src/enemies")
+local enemyCodex = require("src/enemy_codex")  -- Require the enemy codex
 
 local battleSystem = {}
 
@@ -78,25 +76,27 @@ local function validateSquad(squad, squadType)
     return true
 end
 
--- Function to generate an enemy squad
+-- Function to generate an enemy squad from the enemy codex
 local function generateEnemySquad()
     local enemySquad = {}
     local unitCounts = {} -- Track how many of each enemy type has been added
     local numberOfEnemies = math.random(1, 4) -- Randomize squad size (1-4 enemies)
 
     for i = 1, numberOfEnemies do
-        local randomEnemy = enemies.list[math.random(#enemies.list)]
-        local name = randomEnemy.name
+        -- Randomly select an enemy from the codex
+        local randomIndex = math.random(#enemyCodex.enemies)
+        local randomEnemy = enemyCodex.enemies[randomIndex]
 
         -- Increment the count for this enemy type
-        unitCounts[name] = (unitCounts[name] or 0) + 1
-        local numberedName = name
+        unitCounts[randomEnemy.name] = (unitCounts[randomEnemy.name] or 0) + 1
+        local numberedName = randomEnemy.name
 
         -- Append a number only if the same type has appeared before
-        if unitCounts[name] > 1 then
-            numberedName = name .. " #" .. unitCounts[name]
+        if unitCounts[randomEnemy.name] > 1 then
+            numberedName = randomEnemy.name .. " #" .. unitCounts[randomEnemy.name]
         end
 
+        -- Create the enemy unit
         table.insert(enemySquad, {
             name = numberedName,
             class = randomEnemy.class or "Unknown",
@@ -109,7 +109,6 @@ local function generateEnemySquad()
 
     return enemySquad
 end
-
 
 -- Battle function
 function battleSystem.battleFlow(playerSquad, enemySquad)
