@@ -68,8 +68,7 @@ end
 local function displayRecruitedUnit(unit, index)
     print("\nUnit " .. index .. ": " .. colors.formatUnitName(unit.rarity, unit.class))
     print("Level: " .. unit.level .. " (XP: " .. unit.xp .. ")")
-    print("Cost: " .. unit.cost .. " gold")
-
+    print(" Cost: " .. unit.cost .. " gold")
     for _, statName in ipairs(gameState.fullStatsOrder) do
         if unit.stats[statName] then
             print("  " .. statName .. ": " .. unit.stats[statName])
@@ -224,39 +223,54 @@ local function displayGameRules()
 end
 
 local function displayMainMenu()
-    print("\n-----------------------------")
-    print("Main Menu")
-    print("Gold: " .. gameState.currencies.gold)
-    print("Gems: " .. gameState.currencies.gems)
-    print("1. Recruit a Unit")
-    print("2. Manage Army")
-    print("3. Initiate Battle")
-    print("4. View Game Rules")
-    print("5. Exit Game")
+    while true do
+        print("\n-----------------------------")
+        print("Main Menu")
+        print("Gold: " .. gameState.currencies.gold)
+        print("Gems: " .. gameState.currencies.gems)
+        print("1. Recruit a Unit")
+        print("2. Manage Army")
+        print("3. Initiate Battle")
+        print("4. View Game Rules")
+        print("5. Exit Game")
 
-    local choice = getValidNumber("\nEnter your choice:")
+        local choice = getValidNumber("\nEnter your choice:")
 
-    if choice == 1 then
-        gameState.currencies.gold = recruitCharacter(gameState.currencies.gold)
-    elseif choice == 2 then
-        manageArmy()
-    elseif choice == 3 then
-        if #army.squad == 0 then
-            print("\nYour squad is empty. You need units in your squad to initiate a battle.")
+        if choice == 1 then
+            gameState.currencies.gold = recruitCharacter(gameState.currencies.gold)
+        elseif choice == 2 then
+            manageArmy()
+        elseif choice == 3 then
+            if #army.squad == 0 then
+                print("\nYour squad is empty. You need units in your squad to initiate a battle.")
+            else
+                local enemySquad = battleSystem.generateEnemySquad()
+
+                if #enemySquad == 0 then
+                    print("\nError: Generated enemy squad is empty.")
+                else
+                    print("\nBattle initiated! Player Squad:")
+                    for _, unit in ipairs(army.squad) do
+                        print(" - " .. (unit.name or "Unnamed") .. " (" .. unit.class .. "), HP: " .. (unit.stats.Vitality or 0))
+                    end
+
+                    print("\nEnemy Squad:")
+                    for _, unit in ipairs(enemySquad) do
+                        print(" - " .. (unit.name or "Unnamed") .. " (" .. unit.class .. "), HP: " .. (unit.stats.Vitality or 0))
+                    end
+
+                    battleSystem.battleFlow(army.squad, enemySquad)
+                end
+            end
+        elseif choice == 4 then
+            displayGameRules()
+        elseif choice == 5 then
+            print("\nThank you for playing! Goodbye.")
+            break
         else
-            local enemySquad = battleSystem.generateEnemySquad()
-			battleSystem.battleFlow(army.squad, enemySquad)
+            print("\nInvalid choice. Please try again.")
         end
-    elseif choice == 4 then
-        displayGameRules()
-    elseif choice == 5 then
-        print("\nThank you for playing! Goodbye.")
-        os.exit()
-    else
-        print("\nInvalid choice. Please try again.")
     end
-
-    displayMainMenu()
 end
 
 -- Game introduction
