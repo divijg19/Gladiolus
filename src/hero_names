@@ -1,0 +1,29 @@
+-- Define the hero names
+local hero_names = {
+    "Thalion the Brave", "Lysandra the Swift", "Eldric Stormrider", "Khoris the Unyielding",
+    "Aelira Moonstrike", "Vornak the Valiant", "Calindra of the Feral Claws", "Arctus Stormbreaker",
+    "Elysia Shadowdancer", "Varian Emberheart", "Zephyra Windcaller", "Talion the Undying",
+    "Osira the Seer", "Durak the Iron Fist", "Valthor the Warlock", "Eryndor the Radiant",
+    "Nyxian Dreadmist", "Altheran the Wise", "Cindara Flameweaver", "Kaelis the Dawnblade",
+    "Astra the Lightbringer", "Grithar the Beastmaster", "Valeria Starweaver", "Xarion Nightbringer",
+    -- Add more names as needed
+}
+
+-- Function to randomly select a hero name
+function assign_hero_name(unit)
+    local index = math.random(1, #hero_names)
+    unit.hero_name = hero_names[index]
+end
+
+-- Example unit initialization
+function initialize_unit(unit)
+    assign_hero_name(unit)
+    print("Unit initialized with hero name: " .. unit.hero_name)
+end
+
+-- Example of creating a new unit and assigning a hero name
+local new_unit = {}
+initialize_unit(new_unit)
+
+-- Output the hero name for this unit
+print("New unit's hero name: " .. new_unit.hero_name)
