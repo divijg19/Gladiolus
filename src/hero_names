@@ -1,29 +1,51 @@
--- Define the hero names
-local hero_names = {
-    "Thalion the Brave", "Lysandra the Swift", "Eldric Stormrider", "Khoris the Unyielding",
-    "Aelira Moonstrike", "Vornak the Valiant", "Calindra of the Feral Claws", "Arctus Stormbreaker",
-    "Elysia Shadowdancer", "Varian Emberheart", "Zephyra Windcaller", "Talion the Undying",
-    "Osira the Seer", "Durak the Iron Fist", "Valthor the Warlock", "Eryndor the Radiant",
-    "Nyxian Dreadmist", "Altheran the Wise", "Cindara Flameweaver", "Kaelis the Dawnblade",
-    "Astra the Lightbringer", "Grithar the Beastmaster", "Valeria Starweaver", "Xarion Nightbringer",
-    -- Add more names as needed
+local heroNames = {
+   Vanguard = {
+       "Conrad", "Frederik", "Gustav", "Heinrich", "Klaus", "Maximilian", "Otto", "Rudolf", "Stefan", "Ulrich",
+       "Aldric", "Brenor", "Dominic", "Erich", "Fredrik", "Helmut", "Igor", "Johann", "Leopold", "Viktor",
+       "Alaric", "Baldric", "Cedric", "Dietrich", "Egbert", "Falkner", "Gerhard", "Hubert", "Ingmar", "Joachim",
+       "Kendrick", "Lothar", "Manfred", "Norbert", "Oswald", "Pilgrim", "Sebastian", "Reinhardt", "Siegfried", "Theodoric"
+   },
+   Spearsman = {
+       "Bjorn", "Erik", "Gunnar", "Harald", "Kai", "Mikkel", "Olaf", "Rasmus", "Soren", "Torben", 
+       "Adrian", "Caspar", "Dieter", "Finn", "Iver", "Lars", "Nils", "Peder", "Ulf", "Viggo",
+       "Alvar", "Brage", "Colm", "Dagfinn", "Einar", "Floki", "Gorm", "Halfdan", "Ivar", "Joar",
+       "Knut", "Leif", "Magnar", "Njal", "Oddvar", "Pål", "Roar", "Sten", "Trygve", "Yngvar"
+   },
+   Swordsman = {
+       "Claude", "Denis", "Emile", "Francois", "Henri", "Jean", "Laurent", "Nicolas", "Pascal", "Remy",
+       "Alain", "Bernard", "Gabriel", "Ivan", "Kevin", "Marcel", "Olivier", "Quentin", "Xeth", "Vincent",
+       "Amedee", "Bastien", "Clovis", "Damien", "Etienne", "Florian", "Gilles", "Hugo", "Isabeau", "Julien",
+       "Lucien", "Maurice", "Noel", "Philippe", "Raoul", "Sylvain", "Thibaut", "Urbain", "Valentin", "Yves"
+   },
+   Marksman = {
+       "Caleb", "Daniel", "Eli", "Finn", "Henry", "Jack", "Liam", "Nathan", "Owen", "Ryan",
+       "Aaron", "Benjamin", "Carter", "Dylan", "Ethan", "Gavin", "Isaac", "Mason", "Parker", "Samuel",
+       "Archer", "Baldwin", "Camden", "Dawson", "Emmett", "Fletcher", "Griffin", "Holden", "Irving", "Jonas",
+       "Keegan", "Lawson", "Mitchell", "Nolan", "Pearson", "Quinn", "Rayden", "Sawyer", "Thaddeus", "Warren"
+   },
+   Mage = {
+       "Adam", "David", "Elijah", "Felix", "Gabriel", "Isaac", "Jacob", "Michael", "Nathan", "Samuel",
+       "Aaron", "Benjamin", "Caleb", "Daniel", "Ezra", "Finn", "Hayden", "Kai", "Levi", "Thomas",
+       "Alistair", "Bartholomew", "Cassius", "Darius", "Eldon", "Fabian", "Gideon", "Horatio", "Ignatius", "Jasper",
+       "Kenton", "Leander", "Marcus", "Nestor", "Orion", "Phineas", "Quentin", "Rowan", "Silas", "Thaddeus"
+   },
+   Cleric = {
+       "Abraham", "Daniel", "Eli", "Francis", "Isaiah", "Jeremiah", "Luke", "Matthew", "Nathan", "Peter",
+       "Andrew", "Barnabas", "Caleb", "Dominic", "Elias", "Gideon", "Horatio", "Jacob", "Keegan", "Simon",
+       "Ambrose", "Benedict", "Cornelius", "Damian", "Elijah", "Felix", "Gregory", "Hiram", "Ignatius", "Jerome",
+       "Kenneth", "Lambert", "Marcellus", "Nathanael", "Origen", "Paschal", "Quirin", "Raphael", "Sylvester", "Tobias"
+   },
+   Rogue = {
+       "Aidan", "Connor", "Declan", "Eamon", "Finn", "Ian", "Liam", "Malcolm", "Evan", "Ronan",
+       "Alexey", "Brendan", "Cormac", "Daragh", "Emmett", "Garrett", "Gunther", "Jacob", "Neil", "Shane",
+       "Alden", "Brennan", "Callum", "Donal", "Eoghan", "Flynn", "Christabel", "Keiran", "Lorcan", "Mackenzie",
+       "Niall", "Padraig", "Quade", "Rory", "Sheridan", "Tadhg", "Ultan", "Vaughn", "Westley", "Yannick"
+   }
 }
 
--- Function to randomly select a hero name
-function assign_hero_name(unit)
-    local index = math.random(1, #hero_names)
-    unit.hero_name = hero_names[index]
+function heroNames.getRandomHeroName(class)
+   local names = heroNames[class] or {"Unnamed Hero"}
+   return names[math.random(#names)]
 end
 
--- Example unit initialization
-function initialize_unit(unit)
-    assign_hero_name(unit)
-    print("Unit initialized with hero name: " .. unit.hero_name)
-end
-
--- Example of creating a new unit and assigning a hero name
-local new_unit = {}
-initialize_unit(new_unit)
-
--- Output the hero name for this unit
-print("New unit's hero name: " .. new_unit.hero_name)
+return heroNames
