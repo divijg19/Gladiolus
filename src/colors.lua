@@ -37,6 +37,7 @@ end
 function colors.formatUnitName(rarity, className)
     local colorCode = colors.rarityColors[rarity] or colors.rarityColors.Unknown
     return colorCode .. className .. colors.reset
+
 end
 
 return colors

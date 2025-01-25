@@ -3,7 +3,9 @@ local army = require("src/army")
 local battleSystem = require("src/battleSystem")
 local colors = require("src/colors")
 local heroNames = require("src/hero_names")
+local enemies = require("src/enemies")
 
+-- Consolidated game state
 local gameState = {
     currencies = {
         gold = 1000,
@@ -12,6 +14,8 @@ local gameState = {
     LEVEL_UP_COST = 50,
     hasStarterUnit = false,
     
+
+    -- Stats display configuration
     recruitmentStatsOrder = {
         "Strength", "Vitality", "Agility",
         "Intelligence", "Wisdom", "Dexterity"
@@ -24,6 +28,8 @@ local gameState = {
     }
 }
 
+
+-- Helper functions
 local function getRandomElement(tbl)
     local keys = {}
     for key in pairs(tbl) do
@@ -48,6 +54,8 @@ local function getValidNumber(prompt)
     end
 end
 
+
+-- Unit generation and display functions
 local function generateRandomUnits(count)
     local units = {}
     for _ = 1, count do
@@ -57,11 +65,11 @@ local function generateRandomUnits(count)
         
         -- Add hero name
         unit.name = heroNames.getRandomHeroName(unit.class)
-        
         table.insert(units, unit)
     end
     return units
 end
+
 
 local function displayRecruitedUnit(unit, index, useFullStats)
    local statsOrder = useFullStats and gameState.fullStatsOrder or gameState.recruitmentStatsOrder
@@ -80,6 +88,8 @@ end
 
 
 
+
+-- Army management function
 local function manageArmy()
     while true do
         print("\n-----------------------------")
@@ -133,6 +143,8 @@ local function manageArmy()
             
             if isValidIndex(index, army.active) then
                 local unitToDismiss = army.active[index]
+
+                -- Remove from squad if present
                 for squadIndex, squadUnit in ipairs(army.squad) do
                     if squadUnit == unitToDismiss then
                         army.removeFromSquad(squadIndex)
@@ -173,6 +185,8 @@ local function manageArmy()
     end
 end
 
+
+-- Recruitment function
 local function recruitCharacter(gold)
     print("\nGold available: " .. gold)
     print("Generating 7 random units...")
@@ -200,6 +214,7 @@ local function recruitCharacter(gold)
                 print("\n" .. squadMessage)
             end
             
+
             return remainingGold, selectedUnit
         else
             print("\nNot enough gold! You need " .. (selectedUnit.cost - gold) .. " more gold.")
@@ -211,6 +226,8 @@ local function recruitCharacter(gold)
     end
 end
 
+
+-- Display functions
 local function displayGameRules()
     print([[Game Rules and Mechanics
 -----------------------
@@ -228,6 +245,7 @@ local function displayGameRules()
    - Gems: Used for leveling up units
 ]])
 end
+
 
 local function confirmAction(prompt)
     while true do
@@ -302,6 +320,7 @@ local function displayMainMenu()
     end
 end
 
+-- Game introduction
 local function gameIntroduction()
     print([[Welcome to **The Crown's Blade**!
 ---------------------------------
@@ -336,6 +355,8 @@ You start with:
     end
 end
 
+
+-- Main execution
 math.randomseed(os.time())
 gameIntroduction()
 displayMainMenu()

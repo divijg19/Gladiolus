@@ -1,4 +1,5 @@
 -- battleSystem.lua
+
 local army = require("src/army")
 local colors = require("src/colors")
 local enemyCodex = require("src/enemy_codex")
@@ -268,6 +269,7 @@ local function safeValidateSquad(squad, squadType)
         unit.stats.Defense = unit.stats.Defense or 1
         unit.stats.Luck = unit.stats.Luck or 1
         unit.alive = true
+
     end
     return true
 end
@@ -373,4 +375,4 @@ function battleSystem.battleFlow(playerSquad, enemySquad, confirmAction)
 end
 
 battleSystem.validateSquad = validateSquad
-return battleSystem
+
