@@ -3,14 +3,14 @@ local colors = {}
 
 -- ANSI color codes for rarities with reset functionality
 colors.rarityColors = {
-    Common = "\27[90m",     -- Grey
-    Uncommon = "\27[92m",   -- Green
-    Epic = "\27[94m",       -- Blue
-    Elite = "\27[95m",      -- Purple
-    Unique = "\27[38;2;255;215;0m",     -- Gold
-    Legendary = "\27[91m",  -- Red
-    Fabled = "\27[38;5;51m", -- Bright Turquoise
-    Unknown = "\27[35m"     -- Magenta
+    Common = "\27[38;5;246m",     -- Grey
+    Uncommon = "\27[92m",         -- Green
+    Epic = "\27[38;5;33m",        -- Blue
+    Elite = "\27[38;5;201m",      -- Purple
+    Unique = "\27[38;5;220m",     -- Gold
+    Legendary = "\27[91m",        -- Red
+    Fabled = "\27[38;5;51m",      -- Bright Turquoise
+    Unknown = "\27[35m"           -- Magenta
 }
 
 -- Color reset code
