@@ -150,6 +150,7 @@ function army.displayArmy()
     end
 end
 
+
 -- Display squad details
 function army.displaySquad()
     print("\nBattle Squad (" .. #army.squad .. "/" .. army.maxSquadSize .. " units):")
@@ -158,14 +159,20 @@ function army.displaySquad()
     local totalPower = 0
     local roleCount = {}
 
+    local squadStats = {Strength = 0, Vitality = 0, Agility = 0, Intelligence = 0, Wisdom = 0, Dexterity = 0, Luck = 0}
+
+
     for i, unit in ipairs(army.squad) do
         local effectiveStats = calculateEffectiveStats(unit)
         roleCount[unit.class] = (roleCount[unit.class] or 0) + 1
 
         local power = 0
-        for _, value in pairs(effectiveStats) do
-            if type(value) == "number" then
-                power = power + value
+        for _, statName in ipairs({"Strength", "Vitality", "Agility", "Intelligence", "Wisdom", "Dexterity", "Luck"}) do
+            local statValue = effectiveStats[statName]
+            if statValue then
+                power = power + statValue
+                squadStats[statName] = squadStats[statName] + statValue
+
             end
         end
         totalPower = totalPower + power
@@ -183,6 +190,11 @@ function army.displaySquad()
     if #army.squad > 0 then
         print("\nSquad Summary:")
         print("Total Power Rating: " .. totalPower)
+        print("Average Squad Stats:")
+        for statName, total in pairs(squadStats) do
+            print("   " .. statName .. ": " .. math.floor(total / #army.squad))
+        end
+
         print("Role Composition:")
         for role, count in pairs(roleCount) do
             print("   " .. role .. ": " .. count)

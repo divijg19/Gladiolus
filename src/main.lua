@@ -2,6 +2,7 @@ local characterData = require("src/characters")
 local army = require("src/army")
 local battleSystem = require("src/battleSystem")
 local colors = require("src/colors")
+local heroNames = require("src/hero_names")
 local enemies = require("src/enemies")
 
 -- Consolidated game state
@@ -13,6 +14,7 @@ local gameState = {
     LEVEL_UP_COST = 50,
     hasStarterUnit = false,
     
+
     -- Stats display configuration
     recruitmentStatsOrder = {
         "Strength", "Vitality", "Agility",
@@ -25,6 +27,7 @@ local gameState = {
         "Luck"
     }
 }
+
 
 -- Helper functions
 local function getRandomElement(tbl)
@@ -51,31 +54,40 @@ local function getValidNumber(prompt)
     end
 end
 
+
 -- Unit generation and display functions
 local function generateRandomUnits(count)
     local units = {}
     for _ = 1, count do
         local className = getRandomElement(characterData.baseStats)
         local rarity = characterData.selectRarity()
-        local stats, cost = characterData.calculateStatsAndCost(characterData.baseStats[className], rarity, className)
         local unit = characterData.initializeCharacter(className, rarity)
-        unit.cost = cost
+        
+        -- Add hero name
+        unit.name = heroNames.getRandomHeroName(unit.class)
         table.insert(units, unit)
     end
     return units
 end
 
-local function displayRecruitedUnit(unit, index)
-    print("\nUnit " .. index .. ": " .. colors.formatUnitName(unit.rarity, unit.class))
-    print("Level: " .. unit.level .. " (XP: " .. unit.xp .. ")")
-    print("Cost: " .. unit.cost .. " gold")
 
-    for _, statName in ipairs(gameState.fullStatsOrder) do
-        if unit.stats[statName] then
-            print("  " .. statName .. ": " .. unit.stats[statName])
-        end
-    end
+local function displayRecruitedUnit(unit, index, useFullStats)
+   local statsOrder = useFullStats and gameState.fullStatsOrder or gameState.recruitmentStatsOrder
+   
+   print("-----------------------------")
+   print(string.format("\nUnit %d: %-15s Cost: %d gold", index, colors.formatUnitName(unit.rarity, unit.name), unit.cost))
+   print(string.format("Class: %s %s", unit.rarity, unit.class))
+   print("\nLevel: " .. unit.level .. " (XP: " .. unit.xp .. ")")
+   
+   for _, statName in ipairs(statsOrder) do
+       if unit.stats[statName] then
+           print("  " .. statName .. ": " .. unit.stats[statName])
+       end
+   end
 end
+
+
+
 
 -- Army management function
 local function manageArmy()
@@ -131,6 +143,7 @@ local function manageArmy()
             
             if isValidIndex(index, army.active) then
                 local unitToDismiss = army.active[index]
+
                 -- Remove from squad if present
                 for squadIndex, squadUnit in ipairs(army.squad) do
                     if squadUnit == unitToDismiss then
@@ -172,6 +185,7 @@ local function manageArmy()
     end
 end
 
+
 -- Recruitment function
 local function recruitCharacter(gold)
     print("\nGold available: " .. gold)
@@ -193,6 +207,14 @@ local function recruitCharacter(gold)
             local remainingGold = gold - selectedUnit.cost
             print("\nYou recruited a " .. colors.formatUnitName(selectedUnit.rarity, selectedUnit.class) .. "!")
             displayRecruitedUnit(selectedUnit, choice)
+            
+            -- Automatically add to squad for the first 5 recruits
+            if #army.active <= 5 then
+                local squadSuccess, squadMessage = army.addToSquad(#army.active)
+                print("\n" .. squadMessage)
+            end
+            
+
             return remainingGold, selectedUnit
         else
             print("\nNot enough gold! You need " .. (selectedUnit.cost - gold) .. " more gold.")
@@ -203,6 +225,7 @@ local function recruitCharacter(gold)
         return recruitCharacter(gold)
     end
 end
+
 
 -- Display functions
 local function displayGameRules()
@@ -223,40 +246,78 @@ local function displayGameRules()
 ]])
 end
 
-local function displayMainMenu()
-    print("\n-----------------------------")
-    print("Main Menu")
-    print("Gold: " .. gameState.currencies.gold)
-    print("Gems: " .. gameState.currencies.gems)
-    print("1. Recruit a Unit")
-    print("2. Manage Army")
-    print("3. Initiate Battle")
-    print("4. View Game Rules")
-    print("5. Exit Game")
 
-    local choice = getValidNumber("\nEnter your choice:")
-
-    if choice == 1 then
-        gameState.currencies.gold = recruitCharacter(gameState.currencies.gold)
-    elseif choice == 2 then
-        manageArmy()
-    elseif choice == 3 then
-        if #army.squad == 0 then
-            print("\nYour squad is empty. You need units in your squad to initiate a battle.")
+local function confirmAction(prompt)
+    while true do
+        print(prompt .. " (y/n)")
+        local input = io.read():lower()
+        if input == "y" or input == "yes" then
+            return true
+        elseif input == "n" or input == "no" then
+            return false
         else
-            local enemySquad = battleSystem.generateEnemySquad()
-			battleSystem.battleFlow(army.squad, enemySquad)
+            print("\nInvalid input. Please enter 'y' or 'n'.")
         end
-    elseif choice == 4 then
-        displayGameRules()
-    elseif choice == 5 then
-        print("\nThank you for playing! Goodbye.")
-        os.exit()
-    else
-        print("\nInvalid choice. Please try again.")
     end
+end
 
-    displayMainMenu()
+local function displayMainMenu()
+    while true do
+        print("\n-----------------------------")
+        print("Main Menu")
+        print("Gold: " .. gameState.currencies.gold)
+        print("Gems: " .. gameState.currencies.gems)
+        print("1. Recruit a Unit")
+        print("2. Manage Army")
+        print("3. Initiate Battle")
+        print("4. View Game Rules")
+        print("5. Exit Game")
+
+        local choice = getValidNumber("\nEnter your choice:")
+
+        if choice == 1 then
+            gameState.currencies.gold = recruitCharacter(gameState.currencies.gold)
+        elseif choice == 2 then
+            manageArmy()
+        elseif choice == 3 then
+            if #army.squad == 0 then
+                print("\nYour squad is empty. You need units in your squad to initiate a battle.")
+            else
+                local enemySquad = battleSystem.generateEnemySquad()
+        
+                if #enemySquad == 0 then
+                    print("\nError: Generated enemy squad is empty.")
+                else
+                    print("\n-----------------------------")
+                    print("\n" .. colors.colorize("Wild Enemy Encountered!", "Legendary"))
+        
+                    -- Format and display Player Squad
+                    print("\nPlayer Squad:")
+                    for _, unit in ipairs(army.squad) do
+                        local unitName = colors.formatUnitName(unit.rarity, unit.name or "Unnamed")
+                        print(" - " .. unitName .. " (" .. unit.rarity .. " " .. unit.class .. "), HP: " .. (unit.stats.Vitality or 0))
+                    end
+        
+                    -- Format and display Enemy Squad
+                    print("\nEnemy Squad:")
+                    for _, unit in ipairs(enemySquad) do
+                        local unitName = colors.formatUnitName(unit.rarity, unit.name or "Unnamed")
+                        print(" - " .. unitName .. " (" .. unit.rarity .. " " .. unit.class .. "), HP: " .. (unit.stats.Vitality or 0))
+                    end
+                            
+                    battleSystem.battleFlow(army.squad, enemySquad, confirmAction)
+                end
+            end
+                
+        elseif choice == 4 then
+            displayGameRules()
+        elseif choice == 5 then
+            print("\nThank you for playing! Goodbye.")
+            break
+        else
+            print("\nInvalid choice. Please try again.")
+        end
+    end
 end
 
 -- Game introduction
@@ -265,8 +326,10 @@ local function gameIntroduction()
 ---------------------------------
 A kingdom in peril calls for brave warriors to rise and reclaim its glory.
 As the leader of this campaign, it is your duty to assemble a mighty army.
-For battles inside the kingdom, you may take a team of 5 Knights.
-This limit is lifted when fighting the kingdom's invaders.
+
+-> For battles inside the kingdom, you may take a team of 5 Knights.
+-> This limit is lifted when fighting the kingdom's invaders.
+
 Each recruit brings their unique skills and strengths.
 Choose wisely, for the fate of the realm rests on your shoulders!
 
@@ -291,6 +354,7 @@ You start with:
         end
     end
 end
+
 
 -- Main execution
 math.randomseed(os.time())
