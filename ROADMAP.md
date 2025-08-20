@@ -1,9 +1,102 @@
-# Roadmap
+# 👑 The Crown's Blade: Official Development Roadmap
 
-For a solo developer to take a game like "The Crown's Blade" from concept to a polished, commercially viable launch using this from-scratch engine architecture, a realistic timeline is 3.5 to 5 years (7000 to 10000 hours)
+This document outlines the strategic development plan for *The Crown's Blade*. It details the major phases, component breakdowns, and key milestones required to take this project from concept to a polished, commercially-ready game.
 
-This may seem long, but it accounts for the immense upfront cost of engine development, the complexity of two intertwined gameplay loops (tactical combat and strategic management), and the sheer volume of content required for a satisfying RPG experience.
+-   **Total Estimated Duration:** 3.5 to 5 Years (7k to 10k hours)
+-   **Pacing:** Based on a sustainable 40-hour work week.
 
-{
-  "github_roadmap_md": "# 👑 The Crown's Blade: Development Roadmap\n\nThis document outlines the comprehensive development plan for *The Crown's Blade*. It maps the journey from a foundational engine to a polished, commercially viable game. The estimates are based on a single, dedicated developer working a sustainable **40-hour work week**.\n\n**Total Estimated Project Duration:** 3.5 to 5 years.\n\n---\n\n### Project Timeline Overview\n\nA visual representation of the major development phases.\n\n```mermaid\ngantt\n    title The Crown's Blade Development Timeline\n    dateFormat  YYYY-MM-DD\n    axisFormat %Y\n    section Engine & Design\n    Phase 0: Foundation     :2024-01-01, 5m\n    section Core Gameplay\n    Phase 1: Vertical Slice  :2024-06-01, 10m\n    section Content & Scale\n    Phase 2: Full Production :2025-04-01, 21m\n    section Refinement\n    Phase 3: Polish & Beta   :2026-12-01, 10m\n    section Release\n    Phase 4: Launch        :2027-10-01, 2m\n```\n\n---\n\n## Phase 0: 🏗️ Foundation & Pre-Production\n\n> *\"Building the canvas before we start to paint.\"*\n\n-   **Estimated Duration:** 4–6 Months\n-   **Core Objective:** Establish a stable, minimal engine and a finalized game design document.\n\n| Component                  | Tasks & Goals                                                                                                                                                                                                                                                                        | Est. Time   |\n| :------------------------- | :----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | :---------- |\n| **Game Design Doc (GDD)**  | Finalize core mechanics, progression loops, stat systems, narrative outline, and asset requirements. This document becomes the project's bible.                                                                                                                                      | 2–4 Weeks   |\n| **Core Engine Shell (Rust)** | - Setup windowing, input handling, and the main game loop.<br>- Create a basic rendering abstraction layer (e.g., using `wgpu` or `bgfx` FFI).<br>- Implement a robust asset loading and management system.                                                                            | 2–3 Months  |\n| **Rust ↔ Lua Bridge**      | - Architect the API between Rust and Lua using `mlua` or a similar crate.<br>- Expose core engine functions (e.g., `spawn_entity`, `play_sound`) to the Lua environment.<br>- **This is the most critical technical step**; it must be stable and ergonomic. | 1–2 Months  |\n| **Initial FFI Integration**| - Select and bind essential C/C++ libraries.<br>- A good start would be a linear algebra library (math) and a basic audio library (e.g., a wrapper for FMOD or SoLoud).                                                                                                        | 2–4 Weeks   |\n\n> 🎯 **Phase 0 Milestone:** A launchable window that runs a Lua script to print `\"Hello Crown's Blade\"` to a console and can load a single sprite from disk.\n\n---\n\n## Phase 1: 🔬 Vertical Slice - Proving the Core Loop\n\n> *\"Creating one perfect, polished slice of the final game to prove the fun.\"*\n\n-   **Estimated Duration:** 8–12 Months\n-   **Core Objective:** Develop a playable 10-minute demo showcasing the core combat and progression loops to validate the concept.\n\n| Component                          | Tasks & Goals                                                                                                                                                                                                             | Est. Time  |\n| :--------------------------------- | :------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | :--------- |\n| **Scene & Entity System**          | - **(Rust)** Develop the core Entity Component System (ECS) architecture.<br>- **(Lua)** Write scripts to define entity behaviors and compositions.                                                                  | 1–2 Months |\n| **Tactical Combat System**         | - **(Lua)** Script the turn-based logic, action point system, and skill execution.<br>- **(Rust)** Implement any performance-critical calculations for combat resolution.                                             | 3–4 Months |\n| **Character Progression & Gear**   | - **(Lua/Data)** Design and implement data structures for stats, XP, leveling, and items.<br>- **(Lua)** Script the logic for equipping gear and applying its effects.                                                | 2–3 Months |\n| **Basic Management System**        | - **(Lua)** Create a rudimentary barracks UI where the player can view their one hero. No complex training or league systems yet.                                                                                       | 1 Month    |\n| **Placeholder UI & UX**            | - **(Lua)** Implement functional, non-final UI for the combat screen, hero stats, and inventory. Focus on function over form.                                                                                          | 1–2 Months |\n\n> 🎯 **Phase 1 Milestone:** A playable 10-minute demo that *feels* like the final game. You can start a battle, use a few skills, win, get loot, and see your character get stronger. This is the prototype to show a publisher or use for initial marketing.\n\n---\n\n## Phase 2: 🌍 Full Production & Horizontal Slice\n\n> *\"Building out the world and filling it with content and systems.\"*\n\n-   **Estimated Duration:** 1.5–2 Years\n-   **Core Objective:** Implement all remaining features and create the majority of the game's content based on the validated vertical slice.\n\n| Component                      | Tasks & Goals                                                                                                                                                                                                                                            | Est. Time    |\n| :----------------------------- | :------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | :----------- |\n| **Expanded Management Systems**| - **(Lua)** Leagues, tournaments, unit training, scheduling, and map conquest systems.<br>- This is a huge undertaking that forms the strategic backbone of the game.                                                                             | 4–6 Months   |\n| **AI Development**             | - **(Lua)** Script a wide variety of enemy behaviors, boss mechanics, and ally logic for auto-battles.                                                                                                                                                  | 3–4 Months   |\n| **Meta-Progression Systems**   | - **(Lua)** Player-level systems, currency sinks (gold, gems), crafting, and unlocking new game features over time.                                                                                                                                      | 2–3 Months   |\n| **Content Pipeline & Creation**| - **This is the primary time sink.**<br>- **Characters:** Dozens of unique heroes and enemy types.<br>- **Gear:** Hundreds of weapons and armor pieces.<br>- **Environments:** All battle arenas and world map locations.<br>- **Quests:** Scripting the main story and side quests. | 12–18 Months |\n| **UI/UX Overhaul**             | - Replace all placeholder UI with final, polished, artist-created assets and intuitive UX design.                                                                                                                                                          | 3–4 Months   |\n\n> 🎯 **Phase 2 Milestone:** The game is **Feature Complete**. All systems are in place, and a significant amount of content is present. It is playable from beginning to a placeholder \"end\".\n\n---\n\n## Phase 3: ✨ Polish, Beta & Balancing\n\n> *\"Transforming a complete game into a great experience.\"*\n\n-   **Estimated Duration:** 9–12 Months\n-   **Core Objective:** Fix bugs, balance gameplay, and add the final layer of polish that elevates the player experience.\n\n| Component                       | Tasks & Goals                                                                                                                                                                                                                                   | Est. Time  |\n| :------------------------------ | :---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | :--------- |\n| **Alpha (Bug Squashing)**       | - Intensive internal playtesting to find and fix major bugs, crashes, and logic errors.<br>- Focus on stability and system integrity.                                                                                                          | 3–4 Months |\n| **Beta (Balancing & Feedback)** | - Invite external testers.<br>- Balance every hero, enemy, and item. Adjust difficulty curves and economic progression based on player feedback. This is critical for RPGs.                                                                      | 4–6 Months |\n| **Polish (\"The Juice\")**        | - Add visual effects (VFX), sound effects (SFX), screen shake, and other elements that create \"game feel.\"<br>- Finalize music integration, tutorials, and quality-of-life features.                                                             | 2–3 Months |\n\n> 🎯 **Phase 3 Milestone:** The game is **Content Complete** and has achieved release candidate status. It is fully balanced, stable, and polished.\n\n---\n\n## Phase 4: 🚀 Launch & Post-Launch\n\n> *\"Releasing the game to the world and supporting the community.\"*\n\n-   **Estimated Duration:** 1–2 Months (Initial Launch) + Ongoing\n-   **Core Objective:** Successfully launch the game and provide immediate post-launch support.\n\n| Component                 | Tasks & Goals                                                                                                                                                                | Est. Time    |\n| :------------------------ | :--------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | :----------- |\n| **Launch Preparation**    | - Marketing, creating store pages (Steam, etc.), final trailer.<br>- Address any last-minute bugs found by platform certification (if applicable).                               | 1–2 Months   |\n| **Day 1 Patch & Support** | - Be prepared to work intensely during launch week to fix unforeseen issues that arise when thousands of players get their hands on the game.                                     | 1–2 Weeks    |\n| **Post-Launch Roadmap**   | - Plan for future content updates, balance patches, and community engagement to ensure the game's long-term health.                                                            | Ongoing      |\n\n> 🎯 **Phase 4 Milestone:** The Crown's Blade is successfully launched and available to players worldwide.\n"
-}
+---
+
+### **High-Level Timeline**
+
+`Phase 0: Foundation` → `Phase 1: Vertical Slice` → `Phase 2: Full Production` → `Phase 3: Polish & Beta` → `Phase 4: Launch`
+
+---
+
+## **Phase 0: 🏗️ Foundation & Pre-Production**
+
+> **Objective:** To build a functional, minimal engine and establish the definitive design blueprint for the entire project.
+
+-   **Status:** `Not Started`
+-   **Estimated Duration:** 4–6 Months
+
+| Component | Key Tasks & Deliverables | Est. Time |
+| :--- | :--- | :--- |
+| **Game Design Document** | • Finalize core mechanics, progression loops, and economic models.<br>• Define narrative outline, character archetypes, and asset requirements. | 2–4 Weeks |
+| **Core Engine Shell (Rust)** | • Implement windowing, input handling, and the main game loop.<br>• Establish a rendering abstraction layer (`wgpu` or `bgfx` via FFI).<br>• Create a stable asset loading and management system. | 2–3 Months |
+| **Rust ↔ Lua Bridge** | • Architect a clean, stable, and performant API between Rust and Lua.<br>• Expose core engine functionality to the Lua scripting environment.<br>• **This is the most critical technical foundation of the project.** | 1–2 Months |
+| **Initial FFI Integration** | • Select and create safe bindings for essential C/C++ libraries.<br>• Initial focus: Mathematics and Audio libraries. | 2–4 Weeks |
+
+> **🎯 Phase 0 Milestone:** A launchable application that runs a Lua script, renders a single sprite, and accepts basic user input.
+
+---
+
+## **Phase 1: 🔬 Vertical Slice - Proving the Core Loop**
+
+> **Objective:** To develop a single, complete, and polished sliver of the game that proves the core mechanics are fun and the technology is viable.
+
+-   **Status:** `Not Started`
+-   **Estimated Duration:** 8–12 Months
+
+| Component | Key Tasks & Deliverables | Est. Time |
+| :--- | :--- | :--- |
+| **Scene & Entity System** | • **(Rust)** Implement the core Entity Component System (ECS) architecture.<br>• **(Lua)** Script entity composition, behaviors, and properties. | 1–2 Months |
+| **Tactical Combat System** | • **(Lua)** Script turn-based logic, action point system, and skill execution.<br>• **(Rust)** Implement any performance-critical combat calculations if needed. | 3–4 Months |
+| **Character Progression** | • **(Lua/Data)** Implement data structures for stats, XP, levels, and items.<br>• **(Lua)** Script the logic for equipping gear and applying stat modifiers. | 2–3 Months |
+| **Basic Management UI** | • **(Lua)** Create a rudimentary barracks/hero view screen.<br>• Functionality over form; no complex systems (training, etc.) yet. | 1 Month |
+| **Placeholder UI/UX** | • **(Lua)** Implement functional, developer-art UI for all core gameplay screens. | 1–2 Months |
+
+> **🎯 Phase 1 Milestone:** A compelling 10-minute demo showcasing a complete gameplay loop: fight a battle, win, receive loot, and upgrade a character.
+
+---
+
+## **Phase 2: 🌍 Full Production - Content & Systems Expansion**
+
+> **Objective:** To build "horizontally" from the vertical slice, implementing all remaining gameplay systems and creating the majority of the game's content.
+
+-   **Status:** `Not Started`
+-   **Estimated Duration:** 1.5–2 Years
+
+| Component | Key Tasks & Deliverables | Est. Time |
+| :--- | :--- | :--- |
+| **Expanded Management Systems**| • **(Lua)** Implement Leagues, Tournaments, Unit Training, and Map Conquest.<br>• Develop the full strategic layer of the game. | 4–6 Months |
+| **AI Development** | • **(Lua)** Script diverse enemy behaviors, boss fight mechanics, and auto-battle logic for allied units. | 3–4 Months |
+| **Meta-Progression** | • **(Lua)** Implement player-level systems, currency sinks (gold, gems), crafting, and feature unlocks. | 2–3 Months |
+| **Content Pipeline** | • **This is the primary time investment of the project.**<br>• Create dozens of heroes, enemies, hundreds of gear items, and all required quests and environments. | 12–18 Months|
+| **UI/UX Overhaul** | • Replace all placeholder UI with final, polished art assets.<br>• Focus on intuitive design and a professional user experience. | 3–4 Months |
+
+> **🎯 Phase 2 Milestone:** The game is **Feature Complete**. All systems and mechanics are implemented. The game is playable from start to a temporary end.
+
+---
+
+## **Phase 3: ✨ Polish, Beta & Balancing**
+
+> **Objective:** To transform a feature-complete game into a stable, balanced, and delightful experience ready for public release.
+
+-   **Status:** `Not Started`
+-   **Estimated Duration:** 9–12 Months
+
+| Component | Key Tasks & Deliverables | Est. Time |
+| :--- | :--- | :--- |
+| **Alpha (Stabilization)** | • Conduct intensive internal playtesting to find and resolve major bugs, crashes, and logic errors.<br>• Focus on creating a stable, shippable build. | 3–4 Months |
+| **Beta (Balancing & Feedback)**| • Onboard external testers to gather feedback.<br>• Tune all game values: character stats, item power, economic flow, and difficulty curves. | 4–6 Months |
+| **Polish ("The Juice")** | • Add VFX, SFX, screen shake, and other tactile feedback elements.<br>• Finalize music, tutorials, accessibility options, and quality-of-life features. | 2–3 Months |
+
+> **🎯 Phase 3 Milestone:** The game is **Content Complete** and achieves **Release Candidate** status. It is a fully balanced, stable, and polished product.
+
+---
+
+## **Phase 4: 🚀 Launch & Post-Launch Support**
+
+> **Objective:** To successfully release the game to the public and provide ongoing support to the player community.
+
+-   **Status:** `Not Started`
+-   **Estimated Duration:** 1–2 Months (Launch) + Ongoing
+
+| Component | Key Tasks & Deliverables | Est. Time |
+| :--- | :--- | :--- |
+| **Launch Preparation** | • Finalize marketing materials (trailers, screenshots).<br>• Set up store pages (Steam, etc.) and coordinate release timing. | 1–2 Months |
+| **Initial Live Support** | • Monitor the launch for unforeseen critical issues.<br>• Prepare and deploy a Day 1 patch if necessary. | 1–2 Weeks |
+| **Post-Launch Roadmap** | • Plan for future updates, including balance patches, bug fixes, and potential new content. | Ongoing |
+
+> **🎯 Phase 4 Milestone:** *The Crown's Blade* is successfully launched and available to players worldwide.
