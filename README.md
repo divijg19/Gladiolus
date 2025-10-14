@@ -8,10 +8,10 @@
 
 ## 🏰 Vision
 
-**Gladiolus** is a modular, high-performance hybrid engine designed to bring games like  
+**Gladiolus** is a modular, high-performance hybrid engine designed to bring the inspiration from games like  
 🎯 *[Knighthood](https://play.google.com/store/apps/details?id=com.midoki.heroes.adventure.role.play.ing&hl=en)* and  
 🛡️ *[King’s League: Odyssey](https://store.steampowered.com/app/298600/Kings_League_Odyssey/)*  
-to life — with **tactical turn-based combat**, **strategic team management**, and **rich visuals**.
+to life — with **tactical turn-based combat**, **full-on 2D fast-paced non-turn based clashes and skirmishes**, **strategic team management**, and **rich 2.5D visuals**.
 
 Our engine philosophy:
 - ⚡ **Rust at the Core** → stability, performance, fearless concurrency  
@@ -185,6 +185,4 @@ Feel free to use, modify, and build upon this engine for your own projects.
 
 ---
 
-> *“Build something worthy of a crown.” — 👑*
-
-
+> *“In pursuit of something worthy of a crown.” — 👑*
