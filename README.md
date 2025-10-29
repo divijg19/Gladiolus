@@ -86,7 +86,7 @@ Our engine philosophy:
 
 ```bash
 # Clone the repo
-git clone https://github.com/your-org/gladiolus.git
+git clone https://github.com/divijg19/gladiolus.git
 cd gladiolus
 
 # Install dependencies (LuaJIT, etc.)
