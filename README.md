@@ -164,7 +164,7 @@ If you're into **Rust**, **Lua**, **game architecture**, or **graphics programmi
 
 ## 🧭 Related Projects
 
-* 🎮 [The Crown’s Blade (Game Repo)](https://github.com/your-org/the-crowns-blade)
+* 🎮 [The Crown’s Blade (Game Repo)](https://github.com/divijg19/the-crowns-blade)
 * 🧩 Gladiolus Tools (Level editor, scripting sandbox) — *planned*
 * 🧠 Gladiolus SDK — *planned*
 
