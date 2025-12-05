@@ -10,7 +10,7 @@
 
 **Gladiolus** is a modular, high-performance hybrid engine designed to bring the inspiration from games like  
 🎯 *[Knighthood](https://play.google.com/store/apps/details?id=com.midoki.heroes.adventure.role.play.ing&hl=en)* and  
-🛡️ *[King’s League: Odyssey](https://store.steampowered.com/app/298600/Kings_League_Odyssey/)*  
+🛡️ *[King’s League: Odyssey](https://store.steampowered.com/app/298600/Kings_League_Odyssey/)* and old Flash Player web games like Bleach Online 
 to life — with **tactical turn-based conflict combat**, **full-on 2D fast-paced non-turn based clashes and skirmishes**, **strategic team management**, and **rich 2.5D visuals**.
 
 Our engine philosophy:
@@ -106,7 +106,7 @@ cargo run
 
 ## 🧠 Design Philosophy
 
-* **Engine First, Game Second** — Gladiolus isn’t just for *The Crown’s Blade*; it’s built to outlive it.
+* **Engine First, Game Second** — Gladiolus isn’t just for *The Crown’s Blade*; it’s built to outlive it to suit *Spirit Echo* as well as future projects.
 * **Performance without Compromise** — Core in Rust ensures stability and speed.
 * **Scripting Empowerment** — LuaJIT keeps iteration fast, creative, and designer-friendly.
 * **FFI Pragmatism** — Don’t reinvent physics or audio. Use the best and focus on what matters.
